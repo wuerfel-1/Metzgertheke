@@ -191,6 +191,14 @@
   .list-foot button{flex:1;font:inherit;font-weight:600;font-size:.92rem;border-radius:12px;padding:11px;cursor:pointer;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink)}
   .list-foot .share{background:var(--brand);color:#fff;border-color:transparent}
 
+  /* ====== Metzger-Infos (Route/Anrufen/Website/Öffnungszeiten) ====== */
+  .shop-info{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px 14px;align-items:center}
+  .shop-info .info-hours{flex-basis:100%;font-family:Georgia,"Times New Roman",serif;font-size:.82rem;color:var(--pg-ink-soft);margin:0 0 2px;line-height:1.5}
+  .info-chip{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:.8rem;font-weight:600;text-decoration:none;color:var(--pg-accent);background:rgba(124,20,34,.08);border:1px solid var(--pg-edge);border-radius:999px;padding:6px 12px;-webkit-tap-highlight-color:transparent}
+  .info-chip:hover{background:rgba(124,20,34,.14)}
+  .info-chip:focus-visible{outline:none;box-shadow:0 0 0 3px var(--brand-tint)}
+  .info-chip svg{width:15px;height:15px}
+
   /* ====== Alte Schriftrolle / Pergament-Look für die Klappkarten ====== */
   .shops{
     --pg-paper:#e9dab2;--pg-paper-2:#ddc795;--pg-ink:#3b2a17;--pg-ink-soft:#6c5333;
@@ -341,6 +349,29 @@ const locationOf = (t, brand) => {
   return s.replace(/[()]/g, "").trim() || t;
 };
 
+// Kontakt/Infos je Betrieb. Route + Website funktionieren ohne exakte Daten;
+// tel & hours sind optional und werden angezeigt, sobald hinterlegt.
+const SHOP_INFO = {
+  "Geißelmeier Treuchtlingen": { web:"https://metzgerei-geisselmeier.de/", maps:"Metzgerei Geißelmeier Treuchtlingen", tel:"09142 1238", hours:"" },
+  "Geißelmeier Wettelsheim":   { web:"https://landmetzgerei-geisselmeier.de/", maps:"Landmetzgerei Geißelmeier Wettelsheim", tel:"", hours:"" },
+  "Zum Schneck (Suffersheim)": { web:"https://www.gasthaus-metzgerei-zum-schneck.de/", maps:"Gasthaus Metzgerei Zum Schneck Suffersheim", tel:"09149 1219", hours:"" },
+  "Völk Weißenburg":           { web:"https://www.fleischwaren-voelk.de/", maps:"Fleischwaren Völk Weißenburg", tel:"", hours:"" },
+  "Struller Weißenburg":       { web:"https://metzgerei-struller.de/", maps:"Metzgerei Struller Weißenburg", tel:"", hours:"" },
+  "Wörlein Treuchtlingen":     { web:"https://metzgerei-woerlein.de/", maps:"Metzgerei Wörlein Treuchtlingen", tel:"", hours:"" }
+};
+const SVG_MAP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>';
+const SVG_TEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3h3l1.5 5-2 1.5a12 12 0 0 0 5 5l1.5-2 5 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.2 2 2 0 0 1 6.5 3Z"/></svg>';
+const SVG_WEB = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
+function infoHtml(title){
+  const i = SHOP_INFO[title]; if(!i) return "";
+  const q = encodeURIComponent(i.maps||title);
+  let chips = `<a class="info-chip" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">${SVG_MAP}Route</a>`;
+  if(i.tel) chips += `<a class="info-chip" href="tel:${i.tel.replace(/[^0-9+]/g,"")}">${SVG_TEL}Anrufen</a>`;
+  if(i.web) chips += `<a class="info-chip" href="${i.web}" target="_blank" rel="noopener">${SVG_WEB}Website</a>`;
+  const hours = i.hours ? `<div class="info-hours">🕒 ${i.hours}</div>` : "";
+  return `<div class="shop-info">${hours}${chips}</div>`;
+}
+
 const el = id => document.getElementById(id);
 const elDeals=el("deals"), elShops=el("shops"), elNo=el("noresult"), elQecho=el("qecho"), elToggleAll=el("toggleAll");
 const escAttr = s => (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;");
@@ -439,7 +470,7 @@ function render(){
         <div class="count">${items.length} ${unit}</div>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
       </div>
-      <div class="items-wrap"${isCollapsed?' inert':''}><div class="items-inner"><ul class="items">${rows}</ul></div></div>
+      <div class="items-wrap"${isCollapsed?' inert':''}><div class="items-inner"><ul class="items">${rows}</ul>${infoHtml(sh.title)}</div></div>
     </article>`;
   }).join("");
 
