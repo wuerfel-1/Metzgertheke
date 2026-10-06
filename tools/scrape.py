@@ -23,6 +23,7 @@ MODEL   = (os.environ.get("GEMINI_MODEL") or "gemini-3.8-flash").strip()
 if not API_KEY:
     sys.exit("FEHLER: GEMINI_API_KEY nicht gesetzt.")
 client = genai.Client(api_key=API_KEY)
+BASE_SLEEP = float(os.environ.get("BASE_SLEEP", "13"))  # Abstand zwischen KI-Aufrufen (Free-Tier: 5/Min)
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
@@ -46,14 +47,34 @@ def page_text(url):
     html = re.sub(r"\s+", " ", html)
     return html.strip()[:12000]
 
+_RETRY = ("429", "503", "RESOURCE_EXHAUSTED", "UNAVAILABLE", "overloaded")
+
+def _retry_wait(msg, fallback):
+    m = re.search(r"retry in (\d+(?:\.\d+)?)", msg or "")
+    if m:
+        return min(70.0, float(m.group(1)) + 1.5)
+    return fallback
+
+def generate(contents, tries=7):
+    delay = 20.0
+    for attempt in range(tries):
+        try:
+            return client.models.generate_content(model=MODEL, contents=contents)
+        except Exception as e:
+            msg = str(e)
+            if attempt < tries - 1 and any(s in msg for s in _RETRY):
+                wait = _retry_wait(msg, delay)
+                print("    (Limit/Auslastung – warte %.0fs, Versuch %d/%d)" % (wait, attempt + 1, tries))
+                time.sleep(wait)
+                delay = min(70.0, delay * 1.4)
+                continue
+            raise
+
 def ai_text(prompt):
-    resp = client.models.generate_content(model=MODEL, contents=prompt)
-    return (resp.text or "").strip()
+    return (generate(prompt).text or "").strip()
 
 def ai_image(prompt, img_bytes, mime):
-    resp = client.models.generate_content(
-        model=MODEL,
-        contents=[prompt, types.Part.from_bytes(data=img_bytes, mime_type=mime)])
+    resp = generate([prompt, types.Part.from_bytes(data=img_bytes, mime_type=mime)])
     return (resp.text or "").strip()
 
 def parse_price(s):
@@ -176,7 +197,7 @@ def build_offers():
         if txt is None: continue
         block = safe(lambda: ai_text(P_OFFER_TXT % txt), title)
         if block is not None: add(shops, title, block)
-        time.sleep(1)
+        time.sleep(BASE_SLEEP)
     # Bilder
     def img_offer(title, page_or_img, prompt, pattern=None, strip=False):
         url = page_or_img
@@ -187,7 +208,7 @@ def build_offers():
         if not data: return
         block = safe(lambda: ai_image(prompt, data[0], data[1]), title)
         if block is not None: add(shops, title, block)
-        time.sleep(1)
+        time.sleep(BASE_SLEEP)
 
     img_offer("Völk Weißenburg", "https://www.fleischwaren-voelk.de/images/angebot.jpg",
               P_OFFER_IMG_VOELK)
@@ -212,7 +233,7 @@ def build_lunch():
         if txt is None: continue
         block = safe(lambda: ai_text(P_LUNCH_TXT % txt), title)
         if block is not None: add(shops, title, block, lunch=True)
-        time.sleep(1)
+        time.sleep(BASE_SLEEP)
 
     def img_lunch(title, page_or_img, pattern=None, strip=False):
         url = page_or_img
@@ -223,7 +244,7 @@ def build_lunch():
         if not data: return
         block = safe(lambda: ai_image(P_LUNCH_IMG, data[0], data[1]), title)
         if block is not None: add(shops, title, block, lunch=True)
-        time.sleep(1)
+        time.sleep(BASE_SLEEP)
 
     img_lunch("Struller Weißenburg",
               "https://metzgerei-struller.de/wp-content/uploads/2025/05/NEU-Speiseplan-23.png")
