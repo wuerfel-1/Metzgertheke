@@ -15,14 +15,14 @@ try:
 except Exception:
     TZ = None
 import requests
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-MODEL   = (os.environ.get("GEMINI_MODEL") or "gemini-2.0-flash").strip()
+MODEL   = (os.environ.get("GEMINI_MODEL") or "gemini-3.8-flash").strip()
 if not API_KEY:
     sys.exit("FEHLER: GEMINI_API_KEY nicht gesetzt.")
-genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel(MODEL)
+client = genai.Client(api_key=API_KEY)
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
@@ -47,10 +47,13 @@ def page_text(url):
     return html.strip()[:12000]
 
 def ai_text(prompt):
-    return (model.generate_content(prompt).text or "").strip()
+    resp = client.models.generate_content(model=MODEL, contents=prompt)
+    return (resp.text or "").strip()
 
 def ai_image(prompt, img_bytes, mime):
-    resp = model.generate_content([prompt, {"mime_type": mime, "data": img_bytes}])
+    resp = client.models.generate_content(
+        model=MODEL,
+        contents=[prompt, types.Part.from_bytes(data=img_bytes, mime_type=mime)])
     return (resp.text or "").strip()
 
 def parse_price(s):
