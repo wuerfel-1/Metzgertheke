@@ -18,7 +18,7 @@ import requests
 import google.generativeai as genai
 
 API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-MODEL   = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash").strip()
+MODEL   = (os.environ.get("GEMINI_MODEL") or "gemini-2.0-flash").strip()
 if not API_KEY:
     sys.exit("FEHLER: GEMINI_API_KEY nicht gesetzt.")
 genai.configure(api_key=API_KEY)
