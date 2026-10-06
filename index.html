@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Metzgertheke Regional</title>
+<meta name="description" content="Wöchentliche Angebote regionaler Metzgereien in Altmühlfranken.">
+<meta name="theme-color" content="#F1EADC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161210" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Metzgertheke Regional">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@600;700&display=swap">
+<style>
+  :root{
+    --bg:#F1EADC;--surface:#FFFFFF;--surface-2:#FBF6EC;
+    --ink:#211C18;--ink-soft:#6E645A;--ink-faint:#9A8E80;
+    --line:#E4D9C6;--line-strong:#D6C7AE;
+    --brand:#9E1B2F;--brand-ink:#7C1422;--brand-tint:#F6E6E2;
+    --deal:#2F6B3E;--deal-tint:#E4F0E2;--gold:#A9781F;
+    --shadow:0 1px 2px rgba(43,30,20,.06),0 8px 24px rgba(43,30,20,.06);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#161210;--surface:#211A15;--surface-2:#271F18;
+    --ink:#F2E9DB;--ink-soft:#B0A392;--ink-faint:#7E7161;
+    --line:#33281E;--line-strong:#40331F;
+    --brand:#E4586A;--brand-ink:#F0AAB2;--brand-tint:#3A211F;
+    --deal:#82CE95;--deal-tint:#22301F;--gold:#D6A64C;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#161210;--surface:#211A15;--surface-2:#271F18;
+    --ink:#F2E9DB;--ink-soft:#B0A392;--ink-faint:#7E7161;
+    --line:#33281E;--line-strong:#40331F;
+    --brand:#E4586A;--brand-ink:#F0AAB2;--brand-tint:#3A211F;
+    --deal:#82CE95;--deal-tint:#22301F;--gold:#D6A64C;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Instrument Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  img{max-width:100%}
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px 40px}
+  header{position:relative;padding:26px 0 20px;text-align:center}
+  .eyebrow{font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.22em;font-weight:600;font-size:.72rem;color:var(--brand)}
+  h1{font-family:"Oswald",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(2.1rem,9vw,2.9rem);line-height:.98;margin:.28em 0 .18em;text-wrap:balance}
+  .region{display:inline-flex;align-items:center;gap:.5em;font-size:.9rem;color:var(--ink-soft)}
+  .region::before,.region::after{content:"";width:22px;height:1px;background:var(--line-strong)}
+  .stand{margin-top:14px;display:inline-flex;align-items:center;gap:8px;font-size:.8rem;color:var(--ink-soft);background:var(--surface);border:1px solid var(--line);padding:6px 12px;border-radius:999px;box-shadow:var(--shadow)}
+  .stand .dot{width:7px;height:7px;border-radius:50%;background:var(--deal);box-shadow:0 0 0 3px var(--deal-tint)}
+  .stand b{color:var(--ink);font-weight:600}
+  .search{position:sticky;top:0;z-index:5;padding:12px 0;margin-bottom:6px;background:linear-gradient(var(--bg) 78%,transparent)}
+  .search input{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;padding:12px 14px 12px 42px;box-shadow:var(--shadow)}
+  .search input::placeholder{color:var(--ink-faint)}
+  .search input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+  .search .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-faint);pointer-events:none}
+  .tabs{display:flex;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:5px;margin:2px 0 2px}
+  .tab{flex:1;font:inherit;font-weight:600;font-size:.9rem;color:var(--ink-soft);background:none;border:none;border-radius:8px;padding:9px 6px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s}
+  .tab.is-active{background:var(--brand);color:#fff;box-shadow:var(--shadow)}
+  .tab:disabled{opacity:.45;cursor:not-allowed}
+  .tab:focus-visible{outline:none;box-shadow:0 0 0 3px var(--brand-tint)}
+  .sec-label{display:flex;align-items:center;gap:10px;font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.12em;font-weight:600;font-size:.82rem;color:var(--ink-soft);margin:22px 2px 12px}
+  .sec-label .line{flex:1;height:1px;background:var(--line)}
+  .deals{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .deals::-webkit-scrollbar{height:0}
+  .deal-card{scroll-snap-align:start;flex:0 0 auto;min-width:150px;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--deal);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
+  .deal-card .price{font-family:"Oswald",sans-serif;font-weight:700;font-size:1.5rem;color:var(--deal);font-variant-numeric:tabular-nums;line-height:1}
+  .deal-card .name{font-size:.86rem;font-weight:500;margin:6px 0 3px;line-height:1.25}
+  .deal-card .shop{font-size:.72rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em}
+  .shops{display:flex;flex-direction:column;gap:16px}
+  .shop{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .shop-head{display:flex;align-items:center;gap:13px;padding:15px 16px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+  .badge{flex:0 0 auto;width:44px;height:44px;border-radius:12px;background:var(--brand);color:#fff;display:grid;place-items:center;font-family:"Oswald",sans-serif;font-weight:700;font-size:1.25rem;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+  .logo-plate{flex:0 0 auto;height:46px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:5px 10px;box-shadow:var(--shadow)}
+  .logo-plate img{height:32px;width:auto;max-width:170px;object-fit:contain;display:block}
+  .shop-head h2{font-family:"Oswald",sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.03em;font-size:1.12rem;line-height:1.08;margin:0}
+  .shop-head .shopname{font-weight:500;font-size:.82rem;color:var(--ink-soft);margin-top:2px}
+  .shop-head .count{margin-left:auto;flex:0 0 auto;align-self:center;font-family:"Oswald",sans-serif;font-weight:500;font-size:.74rem;color:var(--ink-soft);background:var(--bg);border:1px solid var(--line);padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .shop-head{cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:background-color .18s ease,border-bottom-color .28s ease}
+  .shop-head:focus-visible{outline:none;box-shadow:inset 0 0 0 3px var(--brand-tint)}
+  .shop.collapsed>.shop-head{border-bottom-color:transparent}
+  @media (hover:hover){
+    .shop-head:hover{background:color-mix(in srgb,var(--surface-2) 95%,var(--brand))}
+    .shop.today .shop-head:hover{background:color-mix(in srgb,var(--brand-tint) 94%,var(--brand))}
+    .shop-head:hover .chev{color:var(--brand-ink);background:color-mix(in srgb,var(--brand) 9%,transparent)}
+  }
+  .shop-head:active{background:color-mix(in srgb,var(--surface-2) 92%,var(--brand))}
+  .shop.today .shop-head:active{background:color-mix(in srgb,var(--brand-tint) 90%,var(--brand))}
+  .chev{flex:0 0 auto;box-sizing:content-box;width:20px;height:20px;margin-left:2px;padding:6px;border-radius:50%;color:var(--ink-soft);transition:transform .28s cubic-bezier(.22,1,.36,1),color .18s ease,background-color .18s ease}
+  .shop.today .chev{color:var(--brand-ink)}
+  .shop.collapsed>.shop-head .chev{transform:rotate(-90deg)}
+  .shop>.items-wrap{display:grid;grid-template-rows:1fr;transition:grid-template-rows .28s cubic-bezier(.22,1,.36,1),visibility 0s}
+  .shop.collapsed>.items-wrap{grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .28s cubic-bezier(.22,1,.36,1),visibility 0s linear .28s}
+  .items-inner{min-height:0;overflow:hidden}
+  @media (prefers-reduced-motion:reduce){.shop-head,.chev,.shop>.items-wrap,.shop.collapsed>.items-wrap{transition:none}}
+  .toggle-all{flex:0 0 auto;font:inherit;font-weight:600;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:var(--brand);background:var(--surface);border:1px solid var(--line-strong);border-radius:999px;padding:4px 11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .toggle-all:hover{background:var(--brand-tint)}
+  .toggle-all:focus-visible{outline:none;box-shadow:0 0 0 3px var(--brand-tint)}
+  .shop.today{border-color:var(--line-strong)}
+  .shop.today .shop-head{background:var(--brand-tint)}
+  .today-badge{background:var(--pg-paper);color:var(--pg-accent);border:1.5px solid var(--pg-edge-2);border-radius:50%;box-shadow:inset 0 0 0 2px rgba(124,20,34,.10)}
+  .today-badge svg{width:24px;height:24px}
+  .today-shop{display:block;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin-bottom:2px}
+  .today-empty{color:var(--ink-faint);font-size:.9rem;justify-content:center}
+  ul.items{list-style:none;margin:0;padding:4px 16px 10px}
+  ul.items li{display:flex;align-items:baseline;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+  ul.items li:last-child{border-bottom:none}
+  .item-name{font-size:.95rem;font-weight:500}
+  .leader{flex:1;border-bottom:1px dotted var(--line-strong);transform:translateY(-3px);min-width:14px}
+  .item-price{font-family:"Oswald",sans-serif;font-weight:600;font-size:1.06rem;color:var(--brand-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  li.cheap .item-price{color:var(--deal)}
+  .tag{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--deal);background:var(--deal-tint);padding:2px 6px;border-radius:5px;margin-left:2px;transform:translateY(-1px)}
+  footer{margin-top:26px;text-align:center;font-size:.78rem;color:var(--ink-faint);line-height:1.6}
+  footer .auto{color:var(--ink-soft)}
+  footer b{color:var(--brand);font-weight:600}
+  .noresult,.state{display:none;text-align:center;padding:30px 10px;color:var(--ink-soft)}
+  .noresult.show,.state.show{display:block}
+  .state .spin{width:26px;height:26px;border:3px solid var(--line-strong);border-top-color:var(--brand);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.state .spin{animation:none}}
+  @media (prefers-reduced-motion:no-preference){.shop,.deal-card{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* Install button + modal */
+  .install-btn{margin-top:14px;display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:600;font-size:.9rem;color:#fff;background:var(--brand);border:none;border-radius:999px;padding:10px 18px;box-shadow:var(--shadow);cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .install-btn:hover{filter:brightness(1.06)}
+  .install-btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--brand-tint)}
+  .install-btn svg{width:17px;height:17px}
+  .modal{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(20,15,10,.5)}
+  @media (min-width:560px){.modal{align-items:center;padding:20px}}
+  .modal-card{position:relative;background:var(--surface);color:var(--ink);width:100%;max-width:440px;border:1px solid var(--line);border-radius:20px 20px 0 0;padding:24px 20px 28px}
+  @media (min-width:560px){.modal-card{border-radius:20px}}
+  @media (prefers-reduced-motion:no-preference){.modal-card{animation:sheet .28s cubic-bezier(.2,.7,.2,1) both}}
+  @keyframes sheet{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .modal-close{position:absolute;top:10px;right:12px;width:34px;height:34px;background:none;border:none;font-size:1.7rem;line-height:1;color:var(--ink-faint);cursor:pointer;border-radius:8px}
+  .modal-close:hover{background:var(--surface-2);color:var(--ink)}
+  .modal-card h3{font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.04em;font-size:1.25rem;margin:0 0 4px}
+  .modal-sub{color:var(--ink-soft);font-size:.9rem;margin:0 0 18px}
+  .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:13px}
+  .steps li{display:flex;gap:12px;align-items:flex-start;font-size:.96rem}
+  .steps .n{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-family:"Oswald",sans-serif;font-weight:600;display:grid;place-items:center;font-size:.85rem;margin-top:1px}
+  .steps b{font-weight:600}
+  .steps .ic{display:inline-flex;vertical-align:-4px;width:18px;height:18px;color:var(--brand)}
+  .modal-note{margin:18px 0 0;font-size:.82rem;color:var(--ink-soft);line-height:1.5}
+  .native-install{margin-top:18px;width:100%;font:inherit;font-weight:600;font-size:1rem;color:#fff;background:var(--brand);border:none;border-radius:12px;padding:13px;cursor:pointer}
+  .native-install:hover{filter:brightness(1.06)}
+
+  /* ====== Alte Schriftrolle / Pergament-Look für die Klappkarten ====== */
+  .shops{
+    --pg-paper:#e9dab2;--pg-paper-2:#ddc795;--pg-ink:#3b2a17;--pg-ink-soft:#6c5333;
+    --pg-edge:#b89a63;--pg-edge-2:#8a6a3c;--pg-accent:#7c1422;--pg-deal:#4f6a2f;
+    --pg-rod-a:#3b2512;--pg-rod-b:#7a5126;--pg-rod-c:#9a6f3a;--pg-stain:rgba(120,85,35,.16);
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .shops{
+    --pg-paper:#2b2117;--pg-paper-2:#352a1c;--pg-ink:#ecdcb8;--pg-ink-soft:#b69c72;
+    --pg-edge:#4b3a24;--pg-edge-2:#64502f;--pg-accent:#e4586a;--pg-deal:#9cc47a;
+    --pg-rod-a:#191009;--pg-rod-b:#4a3115;--pg-rod-c:#6a4a22;--pg-stain:rgba(0,0,0,.30);
+  }}
+  :root[data-theme="dark"] .shops{
+    --pg-paper:#2b2117;--pg-paper-2:#352a1c;--pg-ink:#ecdcb8;--pg-ink-soft:#b69c72;
+    --pg-edge:#4b3a24;--pg-edge-2:#64502f;--pg-accent:#e4586a;--pg-deal:#9cc47a;
+    --pg-rod-a:#191009;--pg-rod-b:#4a3115;--pg-rod-c:#6a4a22;--pg-stain:rgba(0,0,0,.30);
+  }
+  .shop{
+    position:relative;
+    color:var(--pg-ink);
+    border:1px solid var(--pg-edge-2);
+    border-radius:var(--radius);
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+      radial-gradient(130% 80% at 10% 6%, var(--pg-stain), transparent 60%),
+      radial-gradient(110% 80% at 92% 94%, var(--pg-stain), transparent 58%),
+      radial-gradient(70% 60% at 72% 30%, rgba(120,85,35,.10), transparent 60%),
+      linear-gradient(180deg, var(--pg-paper), var(--pg-paper-2));
+    box-shadow:inset 0 0 34px rgba(90,60,25,.30),inset 0 0 90px rgba(90,60,25,.12),var(--shadow);
+  }
+  .shop::before,.shop::after{content:"";position:absolute;left:0;right:0;height:9px;z-index:3;pointer-events:none;
+    background:linear-gradient(to bottom,var(--pg-rod-a),var(--pg-rod-b) 42%,var(--pg-rod-c) 55%,var(--pg-rod-a))}
+  .shop::before{top:0;border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 3px 7px rgba(40,25,10,.28)}
+  .shop::after{bottom:0;border-radius:0 0 var(--radius) var(--radius);box-shadow:0 -3px 7px rgba(40,25,10,.28)}
+  .shop>.shop-head,.shop>.items-wrap{position:relative;z-index:2}
+  .shop .shop-head{background:transparent;box-shadow:none;border-bottom:3px double var(--pg-edge)}
+  .shop.collapsed>.shop-head{border-bottom-color:transparent}
+  .shop.today .shop-head{background:rgba(124,20,34,.10)}
+  @media (hover:hover){
+    .shop .shop-head:hover{background:rgba(120,85,35,.10)}
+    .shop.today .shop-head:hover{background:rgba(124,20,34,.15)}
+    .shop .shop-head:hover .chev{color:var(--pg-accent);background:rgba(120,85,35,.16)}
+  }
+  .shop .shop-head:active{background:rgba(120,85,35,.16)}
+  .shop h2{font-family:"Cinzel",Georgia,serif;font-weight:700;letter-spacing:.04em;color:var(--pg-ink)}
+  .shop .shopname,.shop .item-name,.shop .today-shop{font-family:Georgia,"Times New Roman",serif}
+  .shop .shopname,.shop .today-shop{color:var(--pg-ink-soft)}
+  .shop .item-name{color:var(--pg-ink)}
+  .shop .chev{color:var(--pg-ink-soft)}
+  .shop.today .chev{color:var(--pg-accent)}
+  .shop .count{font-family:Georgia,serif;color:var(--pg-ink-soft);background:rgba(120,85,35,.10);border-color:var(--pg-edge)}
+  .shop .item-price{color:var(--pg-accent)}
+  .shop li.cheap .item-price{color:var(--pg-deal)}
+  .shop .tag{color:var(--pg-deal);background:rgba(110,110,40,.18)}
+  .shop ul.items li{border-bottom-color:rgba(120,85,35,.24)}
+  .shop .leader{border-bottom-color:var(--pg-edge)}
+  .shop .logo-plate{background:#fbf6ea;border-color:var(--pg-edge)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Angebote der Woche</div>
+    <h1>Metzgertheke Regional</h1>
+    <div class="region">Altmühlfranken</div>
+    <div class="stand"><span class="dot"></span>Aktualisiert:&nbsp;<b id="stand">–</b></div>
+    <div>
+      <button id="installBtn" class="install-btn" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 21h16"/></svg>
+        App installieren
+      </button>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab is-active" data-mode="offers" role="tab">Wochenangebote</button>
+    <button class="tab" data-mode="lunch" role="tab">Mittagstisch</button>
+  </div>
+
+  <div class="search">
+    <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="q" type="search" inputmode="search" placeholder="Wurst, Schnitzel, Filet …" aria-label="Durchsuchen">
+  </div>
+
+  <div class="state show" id="loading"><div class="spin"></div>Angebote werden geladen …</div>
+  <div class="state" id="error">Angebote konnten nicht geladen werden.<br>Bitte später erneut versuchen.</div>
+
+  <section id="deals-wrap" hidden>
+    <div class="sec-label">🔥 Top-Schnäppchen <span class="line"></span></div>
+    <div class="deals" id="deals"></div>
+  </section>
+
+  <div class="sec-label" id="shops-label" hidden><span id="shops-label-text">Alle Metzgereien</span> <span class="line"></span><button id="toggleAll" class="toggle-all" type="button" hidden>Alle einklappen</button></div>
+  <div class="shops" id="shops"></div>
+  <div class="noresult" id="noresult">Keine Angebote gefunden für „<span id="qecho"></span>".</div>
+
+  <footer>
+    <div class="auto">🥩 Automatisch aktualisiert – immer <b>montags</b>.</div>
+    <div>Regionale Metzgereien in Altmühlfranken · Preise laut Aushang, ohne Gewähr.</div>
+  </footer>
+</div>
+
+<div class="modal" id="installModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="imTitle">
+    <button class="modal-close" id="installClose" aria-label="Schließen">&times;</button>
+    <h3 id="imTitle">Als App installieren</h3>
+    <p class="modal-sub">Leg dir die Metzgertheke wie eine App auf den Startbildschirm.</p>
+    <div id="installBody"></div>
+  </div>
+</div>
+
+<script>
+const CHEAP_MAX = 1.00;
+let MODE = "offers";              // "offers" | "lunch"
+let OFFERS = null, LUNCH = null;
+const active = () => MODE === "lunch" ? LUNCH : OFFERS;
+
+const eur = n => n.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €";
+const norm = s => (s||"").toLowerCase();
+const initials = s => (s||"").replace(/^(Zum|Zur|Die|Der|Das)\s+/i,"").trim().charAt(0).toUpperCase() || "•";
+
+// Echte Logos je Metzgerei (nach Namensteil im Titel). Ohne Logo -> Monogramm.
+const SHOP_META = [
+  { test:/gei[sß]elmeier/i, logo:"logos/geisselmeier.png", brand:"Geißelmeier" },
+  { test:/v[oö]lk/i,        logo:"logos/voelk.png",        brand:"Völk" },
+  { test:/struller/i,       logo:"logos/struller.png",     brand:"Struller" },
+  { test:/w[öo]rlein/i,     logo:"logos/woerlein.svg",     brand:"Wörlein" },
+  { test:/schneck/i,        logo:"logos/schneck.png",      brand:"Zum Schneck" },
+];
+const metaFor = t => SHOP_META.find(m => m.test.test(t)) || null;
+const locationOf = (t, brand) => {
+  let s = t || "";
+  if (brand) s = s.replace(new RegExp(brand, "i"), "");
+  return s.replace(/[()]/g, "").trim() || t;
+};
+
+const el = id => document.getElementById(id);
+const elDeals=el("deals"), elShops=el("shops"), elNo=el("noresult"), elQecho=el("qecho"), elToggleAll=el("toggleAll");
+const escAttr = s => (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+const COLLAPSED = (()=>{ try{ return new Set(JSON.parse(localStorage.getItem("mt_collapsed")||"[]")); }catch(e){ return new Set(); } })();
+const saveCollapsed = ()=>{ try{ localStorage.setItem("mt_collapsed", JSON.stringify([...COLLAPSED])); }catch(e){} };
+const shopTitles = ()=>{ const D=active(); return (D&&D.shops) ? D.shops.map(s=>s.title) : []; };
+const allCollapsed = ()=>{ const t=shopTitles(); return t.length>0 && t.every(x=>COLLAPSED.has(x)); };
+const updateToggleAll = ()=>{ if(elToggleAll) elToggleAll.textContent = allCollapsed() ? "Alle ausklappen" : "Alle einklappen"; };
+
+function buildDeals(){
+  const D = active(); if(!D) return [];
+  const all=[];
+  D.shops.forEach(sh => (sh.items||[]).forEach(([name,price]) =>
+    (typeof price==="number") && all.push({name,price,shop:sh.title})));
+  return all.filter(i=>i.price<=CHEAP_MAX).sort((a,b)=>a.price-b.price).slice(0,7);
+}
+
+function render(){
+  const DATA = active();
+  const q = norm((el("q").value||"").trim());
+  const lunch = MODE === "lunch";
+
+  if(lunch || !DATA){
+    el("deals-wrap").hidden = true;
+  } else {
+    const deals=buildDeals().filter(d=>!q||norm(d.name).includes(q));
+    el("deals-wrap").hidden = deals.length===0;
+    elDeals.innerHTML=deals.map(d=>`
+      <div class="deal-card">
+        <div class="price">${eur(d.price)}</div>
+        <div class="name">${d.name}</div>
+        <div class="shop">${d.shop}</div>
+      </div>`).join("");
+  }
+
+  const unit = lunch ? "Gerichte" : "Angebote";
+
+  let todayHtml = "";
+  if(lunch && DATA && !q){
+    const dow = new Date().getDay();
+    const dayAbbr = ["So","Mo","Di","Mi","Do","Fr","Sa"][dow];
+    const dayName = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"][dow];
+    const re = new RegExp("^"+dayAbbr+"\\b\\s*·?\\s*");
+    let tcount=0; const trows=[];
+    (DATA.shops||[]).forEach(sh=>{
+      (sh.items||[]).forEach(([name,price])=>{
+        if(re.test((name||"").trim())){
+          tcount++;
+          const dish=(name||"").trim().replace(re,"").trim();
+          const hasPrice=typeof price==="number";
+          const priceHtml=hasPrice?`<span class="leader"></span><span class="item-price">${eur(price)}</span>`:"";
+          trows.push(`<li><span class="item-name"><span class="today-shop">${sh.title}</span>${dish}</span>${priceHtml}</li>`);
+        }
+      });
+    });
+    const tcollapsed = COLLAPSED.has("__today__");
+    const tbody = tcount ? trows.join("") : `<li class="today-empty">Heute (${dayName}) kein Mittagstisch hinterlegt.</li>`;
+    todayHtml = `<article class="shop today${tcollapsed?' collapsed':''}" data-title="__today__">
+      <div class="shop-head" role="button" tabindex="0" aria-expanded="${tcollapsed?'false':'true'}">
+        <div class="badge today-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg></div>
+        <div><h2>Heute</h2><div class="shopname">${dayName}</div></div>
+        <div class="count">${tcount} ${tcount===1?"Gericht":"Gerichte"}</div>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="items-wrap"${tcollapsed?' inert':''}><div class="items-inner"><ul class="items">${tbody}</ul></div></div>
+    </article>`;
+  }
+
+  let any=false;
+  elShops.innerHTML=todayHtml+(DATA ? DATA.shops : []).map(sh=>{
+    const items=(sh.items||[]).filter(([name])=>!q||norm(name).includes(q));
+    if(!items.length) return "";
+    any=true;
+    const rows=items.map(([name,price])=>{
+      const hasPrice = typeof price==="number";
+      const cheap = !lunch && hasPrice && price<=CHEAP_MAX;
+      const priceHtml = hasPrice ? `<span class="leader"></span><span class="item-price">${eur(price)}</span>` : "";
+      return `<li class="${cheap?'cheap':''}">
+        <span class="item-name">${name}${cheap?'<span class="tag">günstig</span>':''}</span>
+        ${priceHtml}
+      </li>`;
+    }).join("");
+    const meta = metaFor(sh.title);
+    const brandBlock = (meta && meta.logo)
+      ? `<div class="logo-plate"><img src="${meta.logo}" alt="${meta.brand}" loading="lazy"></div>`
+      : `<div class="badge">${initials(sh.title)}</div>`;
+    const titleBlock = meta
+      ? `<h2>${locationOf(sh.title, meta.brand)}</h2><div class="shopname">${meta.brand}</div>`
+      : `<h2>${sh.title}</h2>`;
+    const isCollapsed = !q && COLLAPSED.has(sh.title);
+    return `<article class="shop${isCollapsed?' collapsed':''}" data-title="${escAttr(sh.title)}">
+      <div class="shop-head" role="button" tabindex="0" aria-expanded="${isCollapsed?'false':'true'}">
+        ${brandBlock}
+        <div>${titleBlock}</div>
+        <div class="count">${items.length} ${unit}</div>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="items-wrap"${isCollapsed?' inert':''}><div class="items-inner"><ul class="items">${rows}</ul></div></div>
+    </article>`;
+  }).join("");
+
+  el("shops-label").hidden = !any && !todayHtml;
+  if(elToggleAll) elToggleAll.hidden = !any;
+  updateToggleAll();
+  elQecho.textContent=(el("q").value||"").trim();
+  elNo.classList.toggle("show", !any && !todayHtml);
+}
+
+function applyMode(){
+  const D = active();
+  el("stand").textContent = (D && D.updated) || "–";
+  el("shops-label-text").textContent = MODE==="lunch" ? "Mittagstisch · Mo–Fr" : "Alle Metzgereien";
+  el("q").placeholder = MODE==="lunch" ? "Schnitzel, Braten, Fisch …" : "Wurst, Schnitzel, Filet …";
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("is-active", t.dataset.mode===MODE));
+  render();
+}
+function setMode(m){ if(m===MODE) return; MODE=m; applyMode(); }
+
+Promise.all([
+  fetch("data.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null),
+  fetch("mittagstisch.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null),
+]).then(([offers,lunch])=>{
+  OFFERS=offers; LUNCH=lunch;
+  el("loading").classList.remove("show");
+  if(!OFFERS && !LUNCH){ el("error").classList.add("show"); return; }
+  const lunchTab = document.querySelector('.tab[data-mode="lunch"]');
+  if(!LUNCH && lunchTab) lunchTab.disabled = true;
+  if(!OFFERS) MODE = "lunch";
+  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{ if(!t.disabled) setMode(t.dataset.mode); }));
+  el("q").addEventListener("input", render);
+  elShops.addEventListener("click", e=>{
+    const head = e.target.closest(".shop-head"); if(!head) return;
+    const art = head.closest(".shop"); if(!art) return;
+    const title = art.getAttribute("data-title");
+    const collapse = !art.classList.contains("collapsed");
+    art.classList.toggle("collapsed", collapse);
+    head.setAttribute("aria-expanded", collapse ? "false" : "true");
+    const wrap = art.querySelector(".items-wrap"); if(wrap) wrap.inert = collapse;
+    if(collapse) COLLAPSED.add(title); else COLLAPSED.delete(title);
+    saveCollapsed(); updateToggleAll();
+  });
+  elShops.addEventListener("keydown", e=>{
+    if((e.key==="Enter"||e.key===" ") && e.target.classList && e.target.classList.contains("shop-head")){ e.preventDefault(); e.target.click(); }
+  });
+  if(elToggleAll) elToggleAll.addEventListener("click", ()=>{
+    el("q").value = "";
+    const titles = shopTitles();
+    if(allCollapsed()) titles.forEach(t=>COLLAPSED.delete(t));
+    else titles.forEach(t=>COLLAPSED.add(t));
+    saveCollapsed(); render();
+  });
+  applyMode();
+});
+
+/* ---- Install-Button + Anleitung ---- */
+(function(){
+  const btn=el("installBtn"), modal=el("installModal"), body=el("installBody"), closeBtn=el("installClose");
+  let deferredPrompt=null;
+  const standalone=()=>window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+  const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  const isAndroid=()=>/android/i.test(navigator.userAgent);
+  const shareIcon='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+
+  const bodyUniversal=()=>'<ol class="steps">'
+    +'<li><span class="n">1</span><div>Öffne das <b>Menü deines Browsers</b>:<br>'
+      +'am <b>iPhone</b> unten auf <b>Teilen</b> '+shareIcon+' &nbsp;·&nbsp; bei <b>Android</b> oben auf die <b>drei Punkte ⋮</b></div></li>'
+    +'<li><span class="n">2</span><div>Tippe auf <b>„Zum Home-Bildschirm"</b> (bzw. <b>„App installieren"</b>)</div></li>'
+    +'<li><span class="n">3</span><div>Mit <b>„Hinzufügen"</b> / <b>„Installieren"</b> bestätigen – fertig ✅</div></li>'
+    +'</ol>';
+
+  function openModal(){
+    let html = "";
+    if(deferredPrompt) html += '<button class="native-install" id="nativeInstall">Jetzt installieren</button>';
+    html += bodyUniversal();
+    body.innerHTML = html;
+    if(deferredPrompt) el("nativeInstall").addEventListener("click", doNative);
+    modal.hidden = false;
+  }
+  const closeModal=()=>{ modal.hidden=true; };
+  async function doNative(){
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const c=await deferredPrompt.userChoice; deferredPrompt=null;
+    if(c && c.outcome==="accepted"){ btn.hidden=true; closeModal(); }
+  }
+
+  window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); deferredPrompt=e; if(!standalone()) btn.hidden=false; });
+  window.addEventListener("appinstalled", ()=>{ deferredPrompt=null; btn.hidden=true; closeModal(); });
+  btn.addEventListener("click", openModal);
+  closeBtn.addEventListener("click", closeModal);
+  modal.addEventListener("click", e=>{ if(e.target===modal) closeModal(); });
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !modal.hidden) closeModal(); });
+
+  if(!standalone()) btn.hidden=false;   // im Browser sichtbar; als App ausgeblendet
+})();
+</script>
+</body>
+</html>

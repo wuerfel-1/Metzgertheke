@@ -1,0 +1,45 @@
+name: Angebote aktualisieren
+
+on:
+  schedule:
+    # Montags 06:15 UTC  (= 08:15 Sommerzeit / 07:15 Winterzeit in DE)
+    - cron: "15 6 * * 1"
+  workflow_dispatch: {}   # manuell ausloesbar (Tab "Actions" -> Run workflow)
+
+permissions:
+  contents: write         # erlaubt dem Job, die aktualisierten JSON zu committen
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Abhaengigkeiten installieren
+        run: pip install -r tools/requirements.txt
+
+      - name: Angebote auslesen (Gemini)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+        run: python tools/scrape.py
+
+      - name: Aenderungen veroeffentlichen
+        run: |
+          git config user.name  "metzgertheke-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json mittagstisch.json
+          if git diff --cached --quiet; then
+            echo "Keine Aenderungen."
+          else
+            git commit -m "Angebote aktualisiert ($(date -u +%Y-%m-%d))"
+            git push
+          fi
