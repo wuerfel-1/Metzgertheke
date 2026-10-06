@@ -158,6 +158,39 @@
   .native-install{margin-top:18px;width:100%;font:inherit;font-weight:600;font-size:1rem;color:#fff;background:var(--brand);border:none;border-radius:12px;padding:13px;cursor:pointer}
   .native-install:hover{filter:brightness(1.06)}
 
+  /* ====== Einkaufsliste ====== */
+  .toolbar{display:flex;gap:8px;margin:2px 0 2px}
+  .list-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:9px;font:inherit;font-weight:600;font-size:.92rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;padding:10px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:var(--shadow)}
+  .list-btn:hover{border-color:var(--brand)}
+  .list-btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--brand-tint)}
+  .list-btn svg{width:19px;height:19px;color:var(--brand)}
+  .list-btn .cnt{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--brand);color:#fff;font-size:.72rem;font-weight:700;display:inline-grid;place-items:center}
+  .list-btn .cnt[hidden]{display:none!important}
+  .add{flex:0 0 auto;margin-left:auto;width:27px;height:27px;border-radius:50%;border:1px solid var(--pg-edge,var(--line-strong));background:transparent;color:var(--pg-accent,var(--brand));cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent;transition:background .15s,transform .1s;align-self:center}
+  .add svg{width:15px;height:15px}
+  .add:hover{background:rgba(124,20,34,.10)}
+  .add:active{transform:scale(.88)}
+  .add.in{background:var(--pg-accent,var(--brand));color:#fff;border-color:transparent}
+  .list-items{list-style:none;margin:0;padding:0;max-height:52vh;overflow:auto}
+  .list-items li{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line)}
+  .list-items li:last-child{border-bottom:none}
+  .list-items .chk{flex:0 0 auto;width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line-strong);background:var(--surface);display:grid;place-items:center;cursor:pointer;color:var(--deal);padding:0}
+  .list-items .chk svg{width:16px;height:16px;opacity:0}
+  .list-items li.done .chk{border-color:var(--deal)}
+  .list-items li.done .chk svg{opacity:1}
+  .list-items li.done .li-name{text-decoration:line-through;color:var(--ink-faint)}
+  .li-main{flex:1;min-width:0;cursor:pointer}
+  .li-name{font-size:.95rem;font-weight:500}
+  .li-shop{font-size:.72rem;color:var(--ink-faint)}
+  .li-price{font-family:"Oswald",sans-serif;font-weight:600;color:var(--brand-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .li-del{flex:0 0 auto;background:none;border:none;color:var(--ink-faint);font-size:1.4rem;line-height:1;cursor:pointer;padding:2px 6px}
+  .li-del:hover{color:var(--brand)}
+  .list-empty{text-align:center;color:var(--ink-faint);padding:26px 4px;line-height:1.6}
+  .list-total{font-size:.82rem;color:var(--ink-soft);margin-top:12px;text-align:right}
+  .list-foot{display:flex;gap:8px;margin-top:14px}
+  .list-foot button{flex:1;font:inherit;font-weight:600;font-size:.92rem;border-radius:12px;padding:11px;cursor:pointer;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink)}
+  .list-foot .share{background:var(--brand);color:#fff;border-color:transparent}
+
   /* ====== Alte Schriftrolle / Pergament-Look für die Klappkarten ====== */
   .shops{
     --pg-paper:#e9dab2;--pg-paper-2:#ddc795;--pg-ink:#3b2a17;--pg-ink-soft:#6c5333;
@@ -241,6 +274,13 @@
     <input id="q" type="search" inputmode="search" placeholder="Wurst, Schnitzel, Filet …" aria-label="Durchsuchen">
   </div>
 
+  <div class="toolbar">
+    <button id="listBtn" class="list-btn" type="button" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5H5l2.3 11.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20.8 7H6.2"/></svg>
+      Einkaufsliste <span class="cnt" id="listCnt" hidden>0</span>
+    </button>
+  </div>
+
   <div class="state show" id="loading"><div class="spin"></div>Angebote werden geladen …</div>
   <div class="state" id="error">Angebote konnten nicht geladen werden.<br>Bitte später erneut versuchen.</div>
 
@@ -265,6 +305,14 @@
     <h3 id="imTitle">Als App installieren</h3>
     <p class="modal-sub">Leg dir die Metzgertheke wie eine App auf den Startbildschirm.</p>
     <div id="installBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="listModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="listTitle">
+    <button class="modal-close" id="listClose" aria-label="Schließen">&times;</button>
+    <h3 id="listTitle">🛒 Einkaufsliste</h3>
+    <div id="listBody"></div>
   </div>
 </div>
 
@@ -344,7 +392,7 @@ function render(){
           const dish=(name||"").trim().replace(re,"").trim();
           const hasPrice=typeof price==="number";
           const priceHtml=hasPrice?`<span class="leader"></span><span class="item-price">${eur(price)}</span>`:"";
-          trows.push(`<li><span class="item-name"><span class="today-shop">${sh.title}</span>${dish}</span>${priceHtml}</li>`);
+          trows.push(`<li><span class="item-name"><span class="today-shop">${sh.title}</span>${dish}</span>${priceHtml}${addBtnHtml(dish, sh.title, price)}</li>`);
         }
       });
     });
@@ -373,6 +421,7 @@ function render(){
       return `<li class="${cheap?'cheap':''}">
         <span class="item-name">${name}${cheap?'<span class="tag">günstig</span>':''}</span>
         ${priceHtml}
+        ${addBtnHtml(name, sh.title, price)}
       </li>`;
     }).join("");
     const meta = metaFor(sh.title);
@@ -424,6 +473,8 @@ Promise.all([
   document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{ if(!t.disabled) setMode(t.dataset.mode); }));
   el("q").addEventListener("input", render);
   elShops.addEventListener("click", e=>{
+    const addb = e.target.closest(".add");
+    if(addb){ e.stopPropagation(); toggleListItem(addb); return; }
     const head = e.target.closest(".shop-head"); if(!head) return;
     const art = head.closest(".shop"); if(!art) return;
     const title = art.getAttribute("data-title");
@@ -488,6 +539,90 @@ Promise.all([
 
   if(!standalone()) btn.hidden=false;   // im Browser sichtbar; als App ausgeblendet
 })();
+
+/* ---- Einkaufsliste ---- */
+const PLUS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+const LIST = (()=>{ try{ return JSON.parse(localStorage.getItem("mt_list")||"[]"); }catch(e){ return []; } })();
+const listKey = (name, shop) => (name||"")+"@@"+(shop||"");
+const listHas = k => LIST.some(x=>x.k===k);
+const saveList = ()=>{ try{ localStorage.setItem("mt_list", JSON.stringify(LIST)); }catch(e){} };
+const escHtml = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function addBtnHtml(name, shop, price){
+  const k = listKey(name, shop);
+  const inList = listHas(k);
+  const p = (typeof price==="number") ? price : "";
+  return `<button class="add${inList?' in':''}" type="button" aria-label="Zur Einkaufsliste hinzufügen"`
+    + ` data-k="${escAttr(k)}" data-n="${escAttr(name)}" data-s="${escAttr(shop)}" data-p="${p}">`
+    + (inList ? CHECK_SVG : PLUS_SVG) + `</button>`;
+}
+function updateListBadge(){
+  const b = el("listCnt"); if(!b) return;
+  b.textContent = LIST.length; b.hidden = LIST.length===0;
+}
+function toggleListItem(btn){
+  const k = btn.getAttribute("data-k");
+  const i = LIST.findIndex(x=>x.k===k);
+  if(i>=0){ LIST.splice(i,1); btn.classList.remove("in"); btn.innerHTML = PLUS_SVG; }
+  else{
+    const p = btn.getAttribute("data-p");
+    LIST.push({ k, n: btn.getAttribute("data-n"), s: btn.getAttribute("data-s"), p: p===""?null:parseFloat(p), done:false });
+    btn.classList.add("in"); btn.innerHTML = CHECK_SVG;
+  }
+  saveList(); updateListBadge();
+}
+function refreshAddButtons(){
+  document.querySelectorAll(".add").forEach(b=>{
+    const inL = listHas(b.getAttribute("data-k"));
+    b.classList.toggle("in", inL);
+    b.innerHTML = inL ? CHECK_SVG : PLUS_SVG;
+  });
+}
+(function(){
+  const modal=el("listModal"), body=el("listBody"), openBtn=el("listBtn"), closeBtn=el("listClose");
+  function renderBody(){
+    if(!LIST.length){ body.innerHTML = '<div class="list-empty">Deine Liste ist leer.<br>Tippe bei einem Angebot auf <b>+</b>, um es hinzuzufügen.</div>'; return; }
+    const rows = LIST.map((x,idx)=>{
+      const price = (typeof x.p==="number") ? `<span class="li-price">${eur(x.p)}</span>` : "";
+      return `<li class="${x.done?'done':''}" data-i="${idx}">
+        <button class="chk" type="button" aria-label="Erledigt">${CHECK_SVG}</button>
+        <div class="li-main"><div class="li-name">${escHtml(x.n)}</div><div class="li-shop">${escHtml(x.s)}</div></div>
+        ${price}
+        <button class="li-del" type="button" aria-label="Entfernen">&times;</button>
+      </li>`;
+    }).join("");
+    const total = LIST.reduce((s,x)=> s + (typeof x.p==="number"?x.p:0), 0);
+    const totalHtml = total>0 ? `<div class="list-total">Summe (nur bepreiste Artikel): <b>${eur(total)}</b></div>` : "";
+    body.innerHTML = `<ul class="list-items">${rows}</ul>${totalHtml}`
+      + `<div class="list-foot"><button class="share" id="listShare" type="button">Teilen</button>`
+      + `<button id="listClear" type="button">Leeren</button></div>`;
+    el("listShare").onclick = share;
+    el("listClear").onclick = ()=>{ LIST.length=0; saveList(); updateListBadge(); renderBody(); refreshAddButtons(); };
+  }
+  body.addEventListener("click", e=>{
+    const li = e.target.closest("li[data-i]"); if(!li) return;
+    const i = +li.getAttribute("data-i");
+    if(e.target.closest(".li-del")){ LIST.splice(i,1); saveList(); updateListBadge(); renderBody(); refreshAddButtons(); return; }
+    if(e.target.closest(".chk") || e.target.closest(".li-main")){ LIST[i].done=!LIST[i].done; saveList(); li.classList.toggle("done", LIST[i].done); }
+  });
+  function share(){
+    const lines = LIST.map(x=> "• "+x.n+(typeof x.p==="number"?" – "+eur(x.p):"")+"  ("+x.s+")");
+    const text = "🛒 Einkaufsliste – Metzgertheke\n\n"+lines.join("\n");
+    if(navigator.share){ navigator.share({title:"Einkaufsliste", text}).catch(()=>{}); return; }
+    if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>{ const s=el("listShare"); if(s){ s.textContent="Kopiert ✓"; setTimeout(()=>{s.textContent="Teilen";},1500);} }).catch(()=>{}); }
+  }
+  openBtn.addEventListener("click", ()=>{ renderBody(); modal.hidden=false; });
+  closeBtn.addEventListener("click", ()=>{ modal.hidden=true; });
+  modal.addEventListener("click", e=>{ if(e.target===modal) modal.hidden=true; });
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !modal.hidden) modal.hidden=true; });
+  updateListBadge();
+})();
+
+/* ---- Offline (Service Worker) ---- */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+}
 </script>
 </body>
 </html>
