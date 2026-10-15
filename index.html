@@ -533,7 +533,9 @@ Promise.all([
 (function(){
   const btn=el("installBtn"), modal=el("installModal"), body=el("installBody"), closeBtn=el("installClose");
   let deferredPrompt=null;
-  const standalone=()=>window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+  // In der Android-App (WebView "; wv)" bzw. TWA mit android-app://-Referrer) ist Installieren sinnlos
+  const inApp=/; wv\)/.test(navigator.userAgent) || document.referrer.startsWith("android-app://");
+  const standalone=()=>inApp || window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
   const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
   const isAndroid=()=>/android/i.test(navigator.userAgent);
   const shareIcon='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
