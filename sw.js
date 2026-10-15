@@ -1,5 +1,6 @@
 /* Metzgertheke – Service Worker (Offline-Betrieb) */
-const CACHE = "metzgertheke-v1";
+const CACHE = "metzgertheke-v2";
+const NAV_TIMEOUT = 3000;  // ms: so lange aufs Netz warten, dann gespeicherte Seite zeigen
 const SHELL = [
   "./", "index.html", "manifest.json",
   "icon.svg", "apple-touch-icon.png",
@@ -10,7 +11,13 @@ const SHELL = [
 
 self.addEventListener("install", e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()).catch(() => {})
+    // cache:"reload" -> am HTTP-Cache vorbei (GitHub Pages: max-age=600), sonst landet evtl. eine alte Kopie im Cache.
+    // Jede Datei einzeln: schlägt eine fehl, die Kopie aus dem alten Cache übernehmen statt die ganze Installation abzubrechen.
+    caches.open(CACHE).then(c => Promise.all(SHELL.map(u =>
+      c.add(new Request(u, { cache: "reload" }))
+        .catch(() => caches.match(u).then(old => old && c.put(u, old)))
+        .catch(() => {})
+    ))).then(() => self.skipWaiting())
   );
 });
 
@@ -43,11 +50,26 @@ self.addEventListener("fetch", e => {
     return;
   }
 
-  // App-Shell: Cache zuerst, im Hintergrund aktualisieren
+  // Seite selbst (HTML): Netz zuerst, damit Änderungen sofort ankommen; offline bzw. nach NAV_TIMEOUT gespeicherte Seite
+  if (req.mode === "navigate") {
+    const net = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(res => {
+      if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put("./", copy)).catch(() => {}); }
+      return res;
+    });
+    const fallback = () => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match("./"));
+    e.respondWith(new Promise(resolve => {
+      const timer = setTimeout(() => fallback().then(r => r && resolve(r)), NAV_TIMEOUT);
+      net.then(res => { clearTimeout(timer); resolve(res); })
+         .catch(() => { clearTimeout(timer); fallback().then(r => resolve(r || Response.error())); });
+    }));
+    return;
+  }
+
+  // Übrige App-Shell (Icons, Logos …): Cache zuerst, im Hintergrund am HTTP-Cache vorbei aktualisieren
   e.respondWith(
     caches.match(req, { ignoreSearch: true }).then(cached => {
-      const net = fetch(req).then(res => {
-        if (res && res.ok) caches.open(CACHE).then(c => c.put(req, res.clone())).catch(() => {});
+      const net = fetch(req, { cache: "no-cache" }).then(res => {
+        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {}); }
         return res;
       }).catch(() => cached);
       return cached || net;
