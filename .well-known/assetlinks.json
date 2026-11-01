@@ -14,7 +14,8 @@
         "namespace": "android_app",
         "package_name": "de.fleischertheke.app",
         "sha256_cert_fingerprints": [
-          "94:42:81:EC:8A:AB:6C:61:DB:4A:55:65:1D:78:FB:A1:91:76:BB:EF:1F:D3:0A:05:B0:6A:FD:D7:28:33:C9:13"
+          "94:42:81:EC:8A:AB:6C:61:DB:4A:55:65:1D:78:FB:A1:91:76:BB:EF:1F:D3:0A:05:B0:6A:FD:D7:28:33:C9:13",
+          "50:B4:C9:D8:06:48:29:86:26:FC:41:53:5C:C6:8C:A2:E4:2C:24:6C:01:3D:D1:DD:3A:56:CF:47:BF:08:1A:02"
         ]
       }
     }]
