@@ -8,4 +8,13 @@
           "6B:0E:90:75:E2:14:9D:F2:B1:EC:E7:F3:0D:83:FF:DF:E4:8C:00:04:6D:9B:A1:B4:28:81:27:C2:30:C9:EA:C3"
         ]
       }
+    }, {
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "de.fleischertheke.app",
+        "sha256_cert_fingerprints": [
+          "94:42:81:EC:8A:AB:6C:61:DB:4A:55:65:1D:78:FB:A1:91:76:BB:EF:1F:D3:0A:05:B0:6A:FD:D7:28:33:C9:13"
+        ]
+      }
     }]
