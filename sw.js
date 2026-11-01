@@ -1,5 +1,5 @@
 /* Fleischer-Theke – Service Worker (Offline-Betrieb) */
-const CACHE = "fleischer-theke-v4";
+const CACHE = "fleischer-theke-v5";
 const NAV_TIMEOUT = 3000;  // ms: so lange aufs Netz warten, dann gespeicherte Seite zeigen
 const SHELL = [
   "./", "index.html", "manifest.json", "fonts/fonts.css", "impressum.html", "datenschutz.html",
@@ -50,7 +50,11 @@ self.addEventListener("fetch", e => {
     return;
   }
 
-  // Seite selbst (HTML): Netz zuerst, damit Änderungen sofort ankommen; offline bzw. nach NAV_TIMEOUT gespeicherte Seite
+  // Seite selbst (HTML): online übernimmt der Browser, damit er bei 401 die Passwortabfrage zeigen kann
+  // (eine vom Service Worker weitergereichte 401-Antwort löst keine Abfrage aus).
+  if (req.mode === "navigate" && navigator.onLine) return;
+
+  // Offline bzw. nach NAV_TIMEOUT: gespeicherte Seite
   if (req.mode === "navigate") {
     const net = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then(res => {
       if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put("./", copy)).catch(() => {}); }
