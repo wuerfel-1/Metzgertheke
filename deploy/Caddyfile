@@ -11,7 +11,8 @@ app.fleischer-theke.de {
 
 	# Passwortschutz über die Anmeldeseite: sie setzt das Cookie ft_zugang (SHA-256 des Passworts).
 	# Der erwartete Wert steht nur auf dem Server in /etc/caddy/zugang-matcher
-	# (Inhalt: not header Cookie "*ft_zugang=<hash>*").
+	# (Inhalt: not header Cookie "*ft_zugang=<hash-passwort>*" "*ft_zugang=<hash-einladungscode>*").
+	# Der Einladungslink login.html#zugang=<code> lässt sich so getrennt vom Passwort sperren.
 	# Offen bleiben: /.well-known/ (Google prüft dort die Android-App), /sw.js (sonst bleibt
 	# ein alter Service Worker hängen), Manifest (wird ohne Cookie geladen), Rechtliches und
 	# was die Anmeldeseite selbst braucht.

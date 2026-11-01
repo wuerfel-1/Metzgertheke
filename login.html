@@ -43,15 +43,26 @@ try {
   }
 } catch (e) {}
 
-document.getElementById("f").addEventListener("submit", async e => {
+document.getElementById("f").addEventListener("submit", e => {
   e.preventDefault();
-  const pw = document.getElementById("pw").value;
+  anmelden(document.getElementById("pw").value);
+});
+
+// Einladungslink: login.html#zugang=<code> meldet ohne Eintippen an
+// (der Teil nach # wird nie an den Server geschickt).
+const einladung = new URLSearchParams(location.hash.slice(1)).get("zugang");
+if (einladung) {
+  history.replaceState(null, "", location.pathname);
+  anmelden(einladung);
+}
+
+async function anmelden(pw) {
   const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pw));
   const hex = [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
   document.cookie = "ft_zugang=" + hex + "; Max-Age=31536000; Path=/; Secure; SameSite=Lax";
   try { sessionStorage.setItem("ft_versuch", String(Date.now())); } catch (e) {}
   location.replace("./");
-});
+}
 </script>
 </body>
 </html>
