@@ -1,0 +1,29 @@
+# Fleischer-Theke – Webserver (Caddy holt die HTTPS-Zertifikate selbst)
+
+# Die App bekommt eine feste Adresse, an die auch die Android-APK gebunden wird.
+app.fleischer-theke.de {
+	root * /srv/fleischer-theke/site
+	encode zstd gzip
+
+	# Interne Dateien aus dem Repo nicht ausliefern
+	@intern path /.git* /.github/* /tools/* /deploy/* /README.md
+	respond @intern 404
+
+	# Service Worker, Manifest und Daten immer frisch, damit Updates sofort ankommen
+	@frisch path /sw.js /manifest.json /data.json /mittagstisch.json /index.html /
+	header @frisch Cache-Control "no-cache"
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	file_server
+}
+
+# Hauptdomain: bis es eine eigene Website gibt, direkt zur App
+fleischer-theke.de, www.fleischer-theke.de {
+	redir https://app.fleischer-theke.de{uri} 302
+}
