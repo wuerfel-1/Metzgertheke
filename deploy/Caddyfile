@@ -9,6 +9,13 @@ app.fleischer-theke.de {
 	@intern path /.git* /.github/* /tools/* /deploy/* /README.md
 	respond @intern 404
 
+	# Passwortschutz für alles außer /.well-known/ (Google prüft dort die Android-App).
+	# Die Zugangsdaten (bcrypt-Hash) liegen nur auf dem Server in /etc/caddy/auth-users.
+	@geschuetzt not path /.well-known/*
+	basic_auth @geschuetzt {
+		import /etc/caddy/auth-users
+	}
+
 	# Service Worker, Manifest und Daten immer frisch, damit Updates sofort ankommen
 	@frisch path /sw.js /manifest.json /data.json /mittagstisch.json /index.html /
 	header @frisch Cache-Control "no-cache"
