@@ -1,6 +1,6 @@
 {
-  "name": "Metzgertheke Regional",
-  "short_name": "Metzgertheke",
+  "name": "Fleischer-Theke Regional",
+  "short_name": "Fleischer-Theke",
   "description": "Wöchentliche Angebote regionaler Metzgereien in Altmühlfranken.",
   "start_url": "./",
   "scope": "./",

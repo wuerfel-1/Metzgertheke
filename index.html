@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Metzgertheke Regional</title>
+<title>Fleischer-Theke Regional</title>
 <meta name="description" content="Wöchentliche Angebote regionaler Metzgereien in Altmühlfranken.">
 <meta name="theme-color" content="#F1EADC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#161210" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Metzgertheke Regional">
+<meta name="apple-mobile-web-app-title" content="Fleischer-Theke Regional">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
@@ -261,7 +261,7 @@
 <div class="wrap">
   <header>
     <div class="eyebrow">Angebote der Woche</div>
-    <h1>Metzgertheke Regional</h1>
+    <h1><span style="white-space:nowrap">Fleischer-Theke</span> Regional</h1>
     <div class="region">Altmühlfranken</div>
     <div class="stand"><span class="dot"></span>Aktualisiert:&nbsp;<b id="stand">–</b></div>
     <div>
@@ -311,7 +311,7 @@
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="imTitle">
     <button class="modal-close" id="installClose" aria-label="Schließen">&times;</button>
     <h3 id="imTitle">Als App installieren</h3>
-    <p class="modal-sub">Leg dir die Metzgertheke wie eine App auf den Startbildschirm.</p>
+    <p class="modal-sub">Leg dir die Fleischer-Theke wie eine App auf den Startbildschirm.</p>
     <div id="installBody"></div>
   </div>
 </div>
@@ -641,7 +641,7 @@ function refreshAddButtons(){
   });
   function share(){
     const lines = LIST.map(x=> "• "+x.n+(typeof x.p==="number"?" – "+eur(x.p):"")+"  ("+x.s+")");
-    const text = "🛒 Einkaufsliste – Metzgertheke\n\n"+lines.join("\n");
+    const text = "🛒 Einkaufsliste – Fleischer-Theke\n\n"+lines.join("\n");
     if(navigator.share){ navigator.share({title:"Einkaufsliste", text}).catch(()=>{}); return; }
     if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>{ const s=el("listShare"); if(s){ s.textContent="Kopiert ✓"; setTimeout(()=>{s.textContent="Teilen";},1500);} }).catch(()=>{}); }
   }

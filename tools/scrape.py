@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Metzgertheke – Online-Scraper (Portierung der Home-Assistant-Automation).
+"""Fleischer-Theke – Online-Scraper (Portierung der Home-Assistant-Automation).
 
 Liest die Wochenangebote und den Mittagstisch mehrerer Metzgereien per Gemini
 aus (Website-Text + Bild-OCR) und schreibt data.json / mittagstisch.json im

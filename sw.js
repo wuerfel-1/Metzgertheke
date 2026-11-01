@@ -1,5 +1,5 @@
-/* Metzgertheke – Service Worker (Offline-Betrieb) */
-const CACHE = "metzgertheke-v2";
+/* Fleischer-Theke – Service Worker (Offline-Betrieb) */
+const CACHE = "fleischer-theke-v3";
 const NAV_TIMEOUT = 3000;  // ms: so lange aufs Netz warten, dann gespeicherte Seite zeigen
 const SHELL = [
   "./", "index.html", "manifest.json",
