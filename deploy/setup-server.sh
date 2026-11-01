@@ -19,7 +19,8 @@ PasswordAuthentication no
 KbdInteractiveAuthentication no
 PermitRootLogin prohibit-password
 EOF
-systemctl reload ssh
+# Neuere Ubuntu-Versionen starten sshd per Socket je Verbindung und lesen die Konfiguration dann ohnehin neu
+systemctl try-reload-or-restart ssh || true
 
 # Firewall: nur SSH und Web
 ufw default deny incoming
