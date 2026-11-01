@@ -1,8 +1,8 @@
 /* Fleischer-Theke – Service Worker (Offline-Betrieb) */
-const CACHE = "fleischer-theke-v3";
+const CACHE = "fleischer-theke-v4";
 const NAV_TIMEOUT = 3000;  // ms: so lange aufs Netz warten, dann gespeicherte Seite zeigen
 const SHELL = [
-  "./", "index.html", "manifest.json",
+  "./", "index.html", "manifest.json", "fonts/fonts.css", "impressum.html", "datenschutz.html",
   "icon.svg", "apple-touch-icon.png",
   "icon-192.png", "icon-512.png", "icon-maskable-512.png",
   "logos/geisselmeier.png", "logos/voelk.png", "logos/struller.png",

@@ -1,0 +1,29 @@
+/* Gemeinsames Aussehen für Impressum und Datenschutz – Farben wie in der App */
+:root{
+  --bg:#F1EADC;--surface:#FFFFFF;--ink:#211C18;--ink-soft:#6E645A;--ink-faint:#9A8E80;
+  --line:#E4D9C6;--brand:#9E1B2F;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161210;--surface:#211A15;--ink:#F2E9DB;--ink-soft:#B0A392;--ink-faint:#7E7161;
+  --line:#33281E;--brand:#E4586A;
+}}
+:root[data-theme="dark"]{
+  --bg:#161210;--surface:#211A15;--ink:#F2E9DB;--ink-soft:#B0A392;--ink-faint:#7E7161;
+  --line:#33281E;--brand:#E4586A;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;line-height:1.6}
+.wrap{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+.back{display:inline-block;margin-bottom:18px;color:var(--brand);text-decoration:none;font-weight:600;font-size:.92rem}
+h1{font-family:"Oswald",sans-serif;text-transform:uppercase;letter-spacing:.02em;font-size:2rem;line-height:1.1;margin:0 0 6px}
+.sub{color:var(--ink-soft);margin:0 0 22px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:14px}
+h2{font-family:"Oswald",sans-serif;font-weight:600;font-size:1.05rem;letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px;color:var(--brand)}
+p,li{font-size:.95rem}
+p{margin:0 0 10px}
+p:last-child{margin-bottom:0}
+ul{margin:0 0 10px;padding-left:20px}
+a{color:var(--brand)}
+address{font-style:normal}
+.stand{color:var(--ink-faint);font-size:.82rem;text-align:center;margin-top:20px}
