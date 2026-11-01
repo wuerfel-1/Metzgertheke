@@ -9,13 +9,17 @@ app.fleischer-theke.de {
 	@intern path /.git* /.github/* /tools/* /deploy/* /README.md
 	respond @intern 404
 
-	# Passwortschutz für alles außer /.well-known/ (Google prüft dort die Android-App)
-	# und /sw.js (sonst kann der Browser einen alten Service Worker nie aktualisieren).
-	# Die Zugangsdaten (bcrypt-Hash) liegen nur auf dem Server in /etc/caddy/auth-users.
-	@geschuetzt not path /.well-known/* /sw.js
-	basic_auth @geschuetzt {
-		import /etc/caddy/auth-users
+	# Passwortschutz über die Anmeldeseite: sie setzt das Cookie ft_zugang (SHA-256 des Passworts).
+	# Der erwartete Wert steht nur auf dem Server in /etc/caddy/zugang-matcher
+	# (Inhalt: not header Cookie "*ft_zugang=<hash>*").
+	# Offen bleiben: /.well-known/ (Google prüft dort die Android-App), /sw.js (sonst bleibt
+	# ein alter Service Worker hängen), Manifest (wird ohne Cookie geladen), Rechtliches und
+	# was die Anmeldeseite selbst braucht.
+	@ohneZugang {
+		not path /.well-known/* /sw.js /manifest.json /login.html /impressum.html /datenschutz.html /legal.css /fonts/* /icon.svg /icon-192.png /icon-512.png /icon-maskable-512.png /apple-touch-icon.png
+		import /etc/caddy/zugang-matcher
 	}
+	redir @ohneZugang /login.html 302
 
 	# Service Worker, Manifest und Daten immer frisch, damit Updates sofort ankommen
 	@frisch path /sw.js /manifest.json /data.json /mittagstisch.json /index.html /

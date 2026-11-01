@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anmelden – Fleischer-Theke</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="legal.css">
+<style>
+  .wrap{max-width:420px;padding-top:12vh}
+  form{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+  label{display:block;font-weight:600;font-size:.92rem;margin-bottom:6px}
+  input{width:100%;font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+  button{width:100%;margin-top:12px;font:inherit;font-weight:600;padding:12px;border:0;border-radius:10px;background:var(--brand);color:#fff;cursor:pointer}
+  .fehler{min-height:1.4em;margin:10px 0 0;color:var(--brand);font-size:.9rem}
+  .legal{text-align:center;margin-top:18px;font-size:.85rem}
+  .legal a{color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fleischer-Theke</h1>
+  <p class="sub">Diese Seite ist noch im Test. Bitte mit dem Zugangspasswort anmelden.</p>
+  <form id="f">
+    <label for="pw">Passwort</label>
+    <input id="pw" type="password" autocomplete="current-password" required autofocus>
+    <button type="submit">Anmelden</button>
+    <p class="fehler" id="fehler" role="alert"></p>
+  </form>
+  <div class="legal"><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></div>
+</div>
+<script>
+// Der Server lässt nur durch, wer das Cookie mit dem SHA-256 des Passworts mitschickt.
+// Stimmt es nicht, leitet er gleich wieder hierher um – dann liegt der Versuch erst Sekunden zurück.
+const fehler = document.getElementById("fehler");
+try {
+  if (Date.now() - Number(sessionStorage.getItem("ft_versuch") || 0) < 15000) {
+    fehler.textContent = "Passwort falsch – bitte nochmal versuchen.";
+    sessionStorage.removeItem("ft_versuch");
+  }
+} catch (e) {}
+
+document.getElementById("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const pw = document.getElementById("pw").value;
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pw));
+  const hex = [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
+  document.cookie = "ft_zugang=" + hex + "; Max-Age=31536000; Path=/; Secure; SameSite=Lax";
+  try { sessionStorage.setItem("ft_versuch", String(Date.now())); } catch (e) {}
+  location.replace("./");
+});
+</script>
+</body>
+</html>
