@@ -24,13 +24,12 @@ if not API_KEY:
 client = genai.Client(api_key=API_KEY)
 BASE_SLEEP = float(os.environ.get("BASE_SLEEP", "8"))  # Abstand zwischen KI-Aufrufen
 
-def pick_model():
-    """Nimmt GEMINI_MODEL falls gesetzt, sonst automatisch ein schlankes
-    flash-Modell aus der Liste der verfuegbaren Modelle (hoeheres Gratis-Limit,
-    weniger Auslastung). Vermeidet erneute Ausfaelle bei Modell-Umbenennungen."""
-    want = os.environ.get("GEMINI_MODEL", "").strip()
-    if want:
-        return want
+def pick_models():
+    """Prioritaetsliste brauchbarer flash-Modelle (bestes zuerst). Bevorzugt
+    'latest'-Alias, dann 'lite' (hoeheres Gratis-Limit), dann die HOECHSTE
+    Versionsnummer. So wird bei Google-Abschaltungen automatisch das neueste
+    verfuegbare Modell gewaehlt. GEMINI_MODEL (falls gesetzt) kommt zuerst."""
+    forced = os.environ.get("GEMINI_MODEL", "").strip()
     try:
         names = []
         for m in client.models.list():
@@ -39,25 +38,30 @@ def pick_model():
             if "generateContent" in acts:
                 names.append(m.name.split("/")[-1])
     except Exception as e:
-        print("Modell-Liste fehlgeschlagen (%s) -> gemini-flash-latest" % e)
-        return "gemini-flash-latest"
+        print("Modell-Liste fehlgeschlagen (%s)" % e)
+        names = []
     def bad(n):
         return any(b in n for b in ("exp", "thinking", "image", "audio", "tts",
                                     "embedding", "learnlm", "vision-", "preview"))
+    def ver(n):
+        mm = re.search(r"(\d+(?:\.\d+)?)", n)
+        return float(mm.group(1)) if mm else 0.0
     def score(n):
-        s = 0
-        if "lite" in n: s += 6
-        if "latest" in n: s += 3
-        if bad(n): s -= 50
-        return s
-    flash = [n for n in names if "flash" in n and not bad(n)] or \
-            [n for n in names if "flash" in n]
-    flash.sort(key=score, reverse=True)
-    chosen = flash[0] if flash else "gemini-flash-latest"
-    print("Auto-Modell: %s   (flash-Modelle: %s)" % (chosen, ", ".join(flash[:8])))
-    return chosen
+        s = 0.0
+        if "latest" in n: s += 1000.0
+        if "lite" in n:   s += 100.0
+        return s + ver(n)
+    flash = sorted((n for n in names if "flash" in n and not bad(n)), key=score, reverse=True)
+    cand = ([forced] if forced else []) + flash
+    for fb in ("gemini-flash-lite-latest", "gemini-3.5-flash-lite",
+               "gemini-flash-latest", "gemini-2.5-flash"):
+        if fb not in cand:
+            cand.append(fb)
+    print("Modell-Kandidaten: %s" % ", ".join(cand[:8]))
+    return cand
 
-MODEL = pick_model()
+MODELS = pick_models()
+MODEL = MODELS[0]
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
@@ -89,20 +93,35 @@ def _retry_wait(msg, fallback):
         return min(35.0, float(m.group(1)) + 1.0)
     return fallback
 
+_MODEL_GONE = ("not_found", "not found", "no longer available", "is not supported",
+               "not supported", "unknown model", "does not exist", "404")
+
 def generate(contents, tries=5):
+    global MODEL
     delay = 12.0
-    for attempt in range(tries):
+    attempt = 0
+    while attempt < tries:
         try:
             return client.models.generate_content(model=MODEL, contents=contents)
         except Exception as e:
-            msg = str(e)
+            msg = str(e); low = msg.lower()
+            # Modell abgeschaltet/unbekannt -> auf naechsten Kandidaten wechseln
+            if any(s in low for s in _MODEL_GONE):
+                i = MODELS.index(MODEL) if MODEL in MODELS else -1
+                if i + 1 < len(MODELS):
+                    print("    (Modell '%s' nicht verfuegbar -> wechsle zu '%s')" % (MODEL, MODELS[i + 1]))
+                    MODEL = MODELS[i + 1]
+                    continue  # ohne attempt zu erhoehen direkt neues Modell testen
+                raise
             if attempt < tries - 1 and any(s in msg for s in _RETRY):
                 wait = _retry_wait(msg, delay)
                 print("    (Limit/Auslastung – warte %.0fs, Versuch %d/%d)" % (wait, attempt + 1, tries))
                 time.sleep(wait)
                 delay = min(35.0, delay * 1.4)
+                attempt += 1
                 continue
             raise
+    raise RuntimeError("generate: Versuche erschoepft")
 
 def ai_text(prompt):
     return (generate(prompt).text or "").strip()
