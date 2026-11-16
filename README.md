@@ -1,4 +1,4 @@
-# Metzgertheke – Online-Version (kostenlos)
+# Fleischer-Theke – Online-Version (kostenlos)
 
 Öffentliche Web-App (PWA) mit Wochenangeboten + Mittagstisch regionaler
 Metzgereien. Läuft komplett kostenlos: Hosting über **GitHub Pages**, das

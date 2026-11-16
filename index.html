@@ -3,20 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Metzgertheke Regional</title>
+<title>Fleischer-Theke Regional</title>
 <meta name="description" content="Wöchentliche Angebote regionaler Metzgereien in Altmühlfranken.">
 <meta name="theme-color" content="#F1EADC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#161210" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Metzgertheke Regional">
+<meta name="apple-mobile-web-app-title" content="Fleischer-Theke Regional">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@600;700&display=swap">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
   :root{
     --bg:#F1EADC;--surface:#FFFFFF;--surface-2:#FBF6EC;
@@ -126,6 +124,8 @@
   footer{margin-top:26px;text-align:center;font-size:.78rem;color:var(--ink-faint);line-height:1.6}
   footer .auto{color:var(--ink-soft)}
   footer b{color:var(--brand);font-weight:600}
+  footer .legal{margin-top:6px}
+  footer .legal a{color:var(--ink-soft)}
   .noresult,.state{display:none;text-align:center;padding:30px 10px;color:var(--ink-soft)}
   .noresult.show,.state.show{display:block}
   .state .spin{width:26px;height:26px;border:3px solid var(--line-strong);border-top-color:var(--brand);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}
@@ -261,7 +261,7 @@
 <div class="wrap">
   <header>
     <div class="eyebrow">Angebote der Woche</div>
-    <h1>Metzgertheke Regional</h1>
+    <h1><span style="white-space:nowrap">Fleischer-Theke</span> Regional</h1>
     <div class="region">Altmühlfranken</div>
     <div class="stand"><span class="dot"></span>Aktualisiert:&nbsp;<b id="stand">–</b></div>
     <div>
@@ -304,6 +304,7 @@
   <footer>
     <div class="auto">🥩 Automatisch aktualisiert – immer <b>montags</b>.</div>
     <div>Regionale Metzgereien in Altmühlfranken · Preise laut Aushang, ohne Gewähr.</div>
+    <div class="legal"><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></div>
   </footer>
 </div>
 
@@ -311,7 +312,7 @@
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="imTitle">
     <button class="modal-close" id="installClose" aria-label="Schließen">&times;</button>
     <h3 id="imTitle">Als App installieren</h3>
-    <p class="modal-sub">Leg dir die Metzgertheke wie eine App auf den Startbildschirm.</p>
+    <p class="modal-sub">Leg dir die Fleischer-Theke wie eine App auf den Startbildschirm.</p>
     <div id="installBody"></div>
   </div>
 </div>
@@ -533,7 +534,9 @@ Promise.all([
 (function(){
   const btn=el("installBtn"), modal=el("installModal"), body=el("installBody"), closeBtn=el("installClose");
   let deferredPrompt=null;
-  const standalone=()=>window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+  // In der Android-App (WebView "; wv)" bzw. TWA mit android-app://-Referrer) ist Installieren sinnlos
+  const inApp=/; wv\)/.test(navigator.userAgent) || document.referrer.startsWith("android-app://");
+  const standalone=()=>inApp || window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
   const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
   const isAndroid=()=>/android/i.test(navigator.userAgent);
   const shareIcon='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
@@ -639,7 +642,7 @@ function refreshAddButtons(){
   });
   function share(){
     const lines = LIST.map(x=> "• "+x.n+(typeof x.p==="number"?" – "+eur(x.p):"")+"  ("+x.s+")");
-    const text = "🛒 Einkaufsliste – Metzgertheke\n\n"+lines.join("\n");
+    const text = "🛒 Einkaufsliste – Fleischer-Theke\n\n"+lines.join("\n");
     if(navigator.share){ navigator.share({title:"Einkaufsliste", text}).catch(()=>{}); return; }
     if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>{ const s=el("listShare"); if(s){ s.textContent="Kopiert ✓"; setTimeout(()=>{s.textContent="Teilen";},1500);} }).catch(()=>{}); }
   }

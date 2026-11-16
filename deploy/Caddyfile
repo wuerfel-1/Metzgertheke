@@ -1,0 +1,42 @@
+# Fleischer-Theke – Webserver (Caddy holt die HTTPS-Zertifikate selbst)
+
+# Die App bekommt eine feste Adresse, an die auch die Android-APK gebunden wird.
+app.fleischer-theke.de {
+	root * /srv/fleischer-theke/site
+	encode zstd gzip
+
+	# Interne Dateien aus dem Repo nicht ausliefern
+	@intern path /.git* /.github/* /tools/* /deploy/* /README.md
+	respond @intern 404
+
+	# Passwortschutz über die Anmeldeseite: sie setzt das Cookie ft_zugang (SHA-256 des Passworts).
+	# Der erwartete Wert steht nur auf dem Server in /etc/caddy/zugang-matcher
+	# (Inhalt: not header Cookie "*ft_zugang=<hash-passwort>*" "*ft_zugang=<hash-einladungscode>*").
+	# Der Einladungslink login.html#zugang=<code> lässt sich so getrennt vom Passwort sperren.
+	# Offen bleiben: /.well-known/ (Google prüft dort die Android-App), /sw.js (sonst bleibt
+	# ein alter Service Worker hängen), Manifest (wird ohne Cookie geladen), Rechtliches und
+	# was die Anmeldeseite selbst braucht.
+	@ohneZugang {
+		not path /.well-known/* /sw.js /manifest.json /login.html /impressum.html /datenschutz.html /legal.css /fonts/* /icon.svg /icon-192.png /icon-512.png /icon-maskable-512.png /apple-touch-icon.png
+		import /etc/caddy/zugang-matcher
+	}
+	redir @ohneZugang /login.html 302
+
+	# Service Worker, Manifest und Daten immer frisch, damit Updates sofort ankommen
+	@frisch path /sw.js /manifest.json /data.json /mittagstisch.json /index.html /
+	header @frisch Cache-Control "no-cache"
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	file_server
+}
+
+# Hauptdomain: bis es eine eigene Website gibt, direkt zur App
+fleischer-theke.de, www.fleischer-theke.de {
+	redir https://app.fleischer-theke.de{uri} 302
+}
